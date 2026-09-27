@@ -1,0 +1,30 @@
+{
+  "name": "clip-manager",
+  "version": "1.0.0",
+  "description": "Board and Clip ID Manager for XML configuration",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serialport": "^10.5.0",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "electron": "^27.3.11",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.clipmanager.app",
+    "productName": "Clip Manager",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+}

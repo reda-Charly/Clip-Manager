@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clip Manager - LEONI BOUZNIKA</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       ENTERPRISE INDUSTRIAL DESIGN SYSTEM & CSS TOKENS (LEONI BOUZNIKA)
+       ========================================================================== */
+    :root {
+      /* Brand & Accent Palettes (Modern Professional Corporate Blue / LEONI Precision) */
+      --primary-color: #0062cc;
+      --primary-hover-color: #004fb3;
+      --primary-gradient: linear-gradient(135deg, #0052cc 0%, #0066e0 50%, #0284c7 100%);
+      --primary-hover: linear-gradient(135deg, #0040a8 0%, #0052cc 50%, #0369a1 100%);
+      --primary-light: #f0f7ff;
+      --primary-border: #bae6fd;
+      --primary-glow: rgba(0, 98, 204, 0.28);
+
+      --color-success: #10b981;
+      --color-success-dark: #059669;
+      --color-success-bg: #ecfdf5;
+      --color-success-border: #a7f3d0;
+      --color-success-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      --color-success-hover: linear-gradient(135deg, #047857 0%, #059669 100%);
+      --color-success-glow: rgba(16, 185, 129, 0.35);
+
+      --color-warning: #f59e0b;
+      --color-warning-dark: #d97706;
+      --color-warning-bg: #fffbeb;
+      --color-warning-border: #fde68a;
+
+      --color-danger: #ef4444;
+      --color-danger-bg: #fef2f2;
+      --color-danger-border: #fecaca;
+
+      /* Surfaces & Neutral Hierarchy */
+      --bg-body: #f8fafc;
+      --bg-header: linear-gradient(135deg, #070e1b 0%, #0c182b 50%, #0f2444 100%);
+      --bg-card: #ffffff;
+      --bg-card-alt: #f8fafc;
+      --bg-subtle: #f1f5f9;
+      --bg-input: #ffffff;
+      
+      --border-color: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --border-hover: #cbd5e1;
+      --border-focus: #0284c7;
+
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+
+      /* Radii & Shadows */
+      --radius-xs: 6px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+
+      --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.08);
+      --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 8px -1px rgba(15, 23, 42, 0.04);
+      --shadow-card-hover: 0 12px 32px -4px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+      --shadow-hover: 0 8px 24px -2px rgba(0, 98, 204, 0.25);
+      --shadow-glow: 0 0 24px rgba(0, 98, 204, 0.32);
+
+      /* Typography */
+      --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+      
+      --transition-fast: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Reset & Base System */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    /* Subtle Ambient Backdrop Mesh */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 320px;
+      background: radial-gradient(circle at 50% -80px, rgba(0, 98, 204, 0.08), transparent 70%),
+                  radial-gradient(circle at 85% -40px, rgba(2, 132, 199, 0.06), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ==========================================================================
+       MODERN ENTERPRISE HEADER
+       ========================================================================== */
+    .app-header {
+      background: var(--bg-header);
+      color: #ffffff;
+      padding: 7px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(7, 14, 27, 0.35);
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Luminous accent bar under header */
+    .app-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(14, 165, 233, 0.4) 25%, rgba(0, 98, 204, 0.7) 50%, rgba(56, 189, 248, 0.4) 75%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 100%);
+      backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: var(--transition-smooth);
+    }
+
+    .header-icon:hover {
+      transform: scale(1.04);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .header-title-box {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .header-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      line-height: 1.15;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-badge {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .header-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .header-subtitle {
+      font-size: 10.5px;
+      color: rgba(226, 232, 240, 0.8);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Segmented Navigation in Header */
+    .options-nav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 4px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .option-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 20px;
+      padding: 4px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      outline: none;
+      color: rgba(255, 255, 255, 0.8);
+      font-family: var(--font-main);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .option-tab:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .option-tab.active {
+      background: #ffffff;
+      color: #0f172a;
+      border-color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .option-tab.mode-hidden {
+      display: none !important;
+    }
+
+    .tab-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tab-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .option-tab.active .tab-num {
+      background: var(--primary-gradient);
+      color: #ffffff;
+    }
+
+    .tab-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    /* Port Status Pill */
+    .port-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.04em;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .port-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 10px #ef4444;
+      transition: var(--transition-smooth);
+    }
+
+    .port-pill.connected {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(52, 211, 153, 0.5);
+    }
+
+    .port-pill.connected .port-dot {
+      background: #10b981;
+      box-shadow: 0 0 12px #10b981;
+      animation: pulse-dot 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.75; }
+    }
+
+    /* ==========================================================================
+       MAIN WORKSPACE
+       ========================================================================== */
+    .app-content {
+      flex: 1;
+      padding: 10px 18px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      min-height: 0;
+    }
+
+    .app-content::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .app-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .app-content::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    .app-content::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* ==========================================================================
+       CARDS & CONTAINERS
+       ========================================================================== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    /* Remove details and subtitles: show only the titles */
+    .card-subtitle,
+    .header-subtitle,
+    .btn-mode-sub,
+    .step-tag,
+    .ancien-id-meta {
+      display: none !important;
+    }
+
+    .step-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--primary-light);
+      color: var(--primary-color);
+      border: 1px solid var(--primary-border);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 9px;
+      border-radius: 20px;
+      width: fit-content;
+      text-transform: uppercase;
+    }
+
+    .step-tag.hardware {
+      background: #e0f2fe;
+      color: #0284c7;
+      border-color: #bae6fd;
+    }
+
+    .step-tag.direct {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    /* ==========================================================================
+       SECTION POSTE DE TRAVAIL (Step 1 & Step 2)
+       ========================================================================== */
+    .workflow-steps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .step-box {
+      background: var(--bg-card-alt);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      transition: var(--transition-fast);
+    }
+
+    .step-box:focus-within {
+      border-color: var(--border-focus);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-badge {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px var(--primary-glow);
+    }
+
+    .step-title {
+      font-size: 11.5px;
+      font-weight: 750;
+      color: var(--text-main);
+      letter-spacing: 0.01em;
+    }
+
+    /* Custom Form Select */
+    .custom-select-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .form-select {
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      background-color: #ffffff;
+      color: var(--text-main);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 5px 30px 5px 10px;
+      font-family: var(--font-main);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition-fast);
+      box-shadow: var(--shadow-xs);
+      height: 33px;
+    }
+
+    .form-select:hover {
+      border-color: var(--border-hover);
+    }
+
+    .form-select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+      background-color: #ffffff;
+    }
+
+    .select-chevron {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+    }
+
+    /* ==========================================================================
+       IDENTIFIANT ACTUEL DISPLAY (Command-Center HUD)
+       ========================================================================== */
+    .ancien-id-section {
+      background: linear-gradient(135deg, #070e1b 0%, #0c182b 50%, #0d2850 100%);
+      border: 1.5px solid rgba(14, 165, 233, 0.35);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      animation: fade-in-up 0.25s ease;
+      box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ancien-id-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-copy-id {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-xs, 5px);
+      padding: 4px 11px;
+      font-family: var(--font-main);
+      font-size: 11px;
+      font-weight: 700;
+      color: #e0f2fe;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-copy-id:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.45);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .btn-copy-id:active {
+      transform: scale(0.96);
+    }
+
+    .btn-copy-id.copied {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #34d399;
+      color: #34d399;
+    }
+
+    .ancien-id-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #0066cc, #0ea5e9, #38bdf8);
+    }
+
+    .ancien-id-section.visible {
+      display: flex;
+    }
+
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ancien-id-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #7dd3fc;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ancien-id-value {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.12em;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-xs, 5px);
+      display: inline-block;
+      text-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+      width: fit-content;
+      backdrop-filter: blur(8px);
+      word-break: break-all;
+    }
+
+    .ancien-id-meta {
+      font-size: 10.5px;
+      color: #94a3b8;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* ==========================================================================
+       MODE CHOICE CARDS (Récepteur vs Saisie Manuelle)
+       ========================================================================== */
+    .mode-choice-row {
+      display: none;
+      gap: 16px;
+      animation: fade-in-up 0.3s ease 0.05s both;
+    }
+
+    .mode-choice-row.visible {
+      display: flex;
+    }
+
+    .btn-mode-choice {
+      flex: 1;
+      padding: 18px 22px;
+      border-radius: var(--radius-md);
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition-smooth);
+      font-family: var(--font-main);
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-mode-choice:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-mode-choice:active {
+      transform: translateY(0);
+    }
+
+    .btn-mode-receiver {
+      background: #ffffff;
+      border-color: #bae6fd;
+      color: var(--text-main);
+    }
+
+    .btn-mode-receiver:hover,
+    .btn-mode-receiver.selected {
+      background: var(--primary-gradient);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 10px 24px -4px rgba(0, 98, 204, 0.32);
+    }
+
+    .btn-mode-manual {
+      background: #ffffff;
+      border-color: #d1fae5;
+      color: var(--text-main);
+    }
+
+    .btn-mode-manual:hover,
+    .btn-mode-manual.selected {
+      background: var(--color-success-gradient);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 12px 28px -4px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-mode-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-mode-receiver .btn-mode-icon {
+      background: #f0f7ff;
+      color: var(--primary-color);
+    }
+
+    .btn-mode-receiver:hover .btn-mode-icon,
+    .btn-mode-receiver.selected .btn-mode-icon {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .btn-mode-manual .btn-mode-icon {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .btn-mode-manual:hover .btn-mode-icon,
+    .btn-mode-manual.selected .btn-mode-icon {
+      background: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .btn-mode-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-mode-sub {
+      font-size: 11.5px;
+      font-weight: 500;
+      opacity: 0.85;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ==========================================================================
+       OPTION VIEWS (1, 2 & 3)
+       ========================================================================== */
+    .option-view {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      animation: fade-in-up 0.25s ease;
+    }
+
+    .option-view.active-view {
+      display: flex;
+    }
+
+    /* Full-Height Responsive Adapter for Mode Atelier & Mode Ticket */
+    #xmlSelectionSection {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    #optionView2 {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    #optionView2.active-view {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #optionView2 .card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    #optionView3 {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    #optionView3.active-view {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+
+    /* ==========================================================================
+       PORT ROW & CONTROLS (Unified on One Line)
+       ========================================================================== */
+    .port-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: var(--bg-card-alt);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .port-select-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .port-select {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      color: var(--text-main);
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .port-select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Buttons Base */
+    .btn {
+      font-family: var(--font-main);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition-fast);
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-light {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .btn-light:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border-color: var(--border-hover);
+    }
+
+    .btn-gradient {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .btn-gradient:hover {
+      background: var(--primary-hover);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-signal-acquire {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      padding: 9px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn-signal-acquire:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 6px 18px rgba(0, 98, 204, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-signal-acquire.listening {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      animation: pulse-amber 1.5s infinite alternate;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
+    }
+
+    @keyframes pulse-amber {
+      from { box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
+      to { box-shadow: 0 0 16px rgba(245, 158, 11, 0.8); }
+    }
+
+    .btn-save-main {
+      background: var(--color-success-gradient);
+      color: #ffffff;
+      padding: 13px 24px;
+      font-size: 14px;
+      font-weight: 800;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+      width: 100%;
+      justify-content: center;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-save-main:hover {
+      background: var(--color-success-hover);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       OPTION 1 PROTOCOL & SIGNAL MATCH TRACKER
+       ========================================================================== */
+    .id-manager-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .form-control {
+      width: 100%;
+      background-color: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 5px 12px;
+      font-family: var(--font-mono);
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition-smooth);
+      box-shadow: var(--shadow-sm);
+      height: 34px;
+    }
+
+    .form-control.highlight {
+      background: #f8fafc;
+      color: var(--primary-color);
+      letter-spacing: 0.05em;
+    }
+
+    .form-control.highlight:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 4px var(--primary-glow);
+      background: #ffffff;
+    }
+
+    .form-control.validated {
+      border-color: #10b981;
+      background: #ecfdf5;
+      color: #065f46;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+    }
+
+    .match-tracker-bar {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .match-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .match-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      transition: var(--transition-smooth);
+    }
+
+    .match-pill.active {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #b45309;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+
+    .match-pill.success {
+      background: #ecfdf5;
+      border-color: #10b981;
+      color: #047857;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .match-status-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       OPTION 2 CONVERSION RESULT CARD — Unified HUD Style (Identical to ID Actuel)
+       ========================================================================== */
+    .hex-input {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 14.5px;
+      height: 34px;
+      padding: 5px 12px;
+    }
+
+    .conversion-result-card {
+      background: linear-gradient(135deg, #070e1b 0%, #0c182b 50%, #0d2850 100%);
+      border: 1.5px solid rgba(14, 165, 233, 0.35);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      animation: fade-in-up 0.25s ease;
+    }
+
+    .conversion-result-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #0066cc, #0ea5e9, #38bdf8);
+    }
+
+    .conv-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .conv-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #7dd3fc;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .conv-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: var(--transition-fast);
+    }
+
+    .conv-badge.active {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #34d399;
+      color: #34d399;
+    }
+
+    .conv-output-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .conv-id-val {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.12em;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-xs, 5px);
+      display: inline-block;
+      text-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+      width: fit-content;
+      backdrop-filter: blur(8px);
+      word-break: break-all;
+    }
+
+    .conv-meta {
+      font-size: 10.5px;
+      color: #94a3b8;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* ==========================================================================
+       OPTION 3 DIRECT HIGH CADENCE & THERMAL TICKET
+       ========================================================================== */
+    .opt3-direct-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .opt3-signal-display {
+      background: #090d16;
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px solid #1e293b;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .signal-data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 3px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .signal-data-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .signal-data-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+    }
+
+    .signal-data-value {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: 0.05em;
+    }
+
+    .signal-data-value.hex {
+      color: #38bdf8;
+      font-size: 14.5px;
+    }
+
+    .signal-data-value.dec {
+      color: #34d399;
+      font-size: 14.5px;
+    }
+
+    /* Thermal Ticket Preview */
+    .ticket-card-box {
+      background: #ffffff;
+      border: 1.5px dashed #94a3b8;
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 5px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: relative;
+      max-width: 290px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .ticket-header-block {
+      text-align: center;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid #0f172a;
+    }
+
+    .ticket-brand {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #0f172a;
+    }
+
+    .ticket-title {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* Barcode for Code HEX */
+    .ticket-barcode-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0;
+      width: 100%;
+    }
+
+    .barcode-svg-box {
+      width: 100%;
+      height: 44px;
+    }
+
+    .barcode-svg-box svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .barcode-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #0f172a;
+    }
+
+    .btn-print-ticket {
+      background: var(--color-success-gradient);
+      color: #ffffff;
+      padding: 9px 18px;
+      font-size: 12.5px;
+      font-weight: 800;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      letter-spacing: 0.02em;
+      transition: var(--transition-fast);
+    }
+
+    .btn-print-ticket:hover:not(:disabled) {
+      background: var(--color-success-hover);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-print-ticket:disabled {
+      background: #cbd5e1;
+      color: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* ==========================================================================
+       TRANSMITTER DETECTION PANEL (Option 3 Multi-Emetteur)
+       ========================================================================== */
+    .tx-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .tx-panel-hint {
+      margin-left: auto;
+      background: #dbeafe;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      border-radius: 20px;
+      padding: 2px 9px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: none;
+    }
+
+    .tx-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 60px;
+    }
+
+    .tx-empty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tx-card {
+      background: #f8fafc;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: var(--transition-smooth);
+    }
+
+    .tx-card.tx-active {
+      background: #fffbeb;
+      border-color: #fcd34d;
+    }
+
+    .tx-card.tx-confirmed {
+      background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+      border-color: #6ee7b7;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.12), 0 4px 12px rgba(16, 185, 129, 0.1);
+      animation: tx-confirm-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes tx-confirm-pop {
+      0% { transform: scale(0.97); }
+      60% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    .tx-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tx-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .tx-hex {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary-color);
+      letter-spacing: 0.06em;
+    }
+
+    .tx-dec {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    .tx-count-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 11px;
+      border-radius: 20px;
+      background: #e2e8f0;
+      color: #64748b;
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+      transition: var(--transition-smooth);
+    }
+
+    .tx-count-badge.almost {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fcd34d;
+    }
+
+    .tx-count-badge.confirmed {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .tx-progress-track {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .tx-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #0062cc);
+      border-radius: 3px;
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tx-progress-bar.full {
+      background: linear-gradient(90deg, #059669, #10b981);
+    }
+
+    .tx-click-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tx-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      border: 1.5px solid #cbd5e1;
+      transition: var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .tx-dot.hit {
+      background: #fcd34d;
+      border-color: #f59e0b;
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+    }
+
+    .tx-dot.done {
+      background: #10b981;
+      border-color: #059669;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+
+    .tx-dot-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-left: 3px;
+    }
+
+    .tx-confirmed .tx-dot-label {
+      color: #059669;
+      font-weight: 800;
+    }
+
+
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 26px 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+      background: var(--bg-card-alt);
+      border-radius: var(--radius-md);
+      border: 1.5px dashed var(--border-color);
+    }
+
+    /* ==========================================================================
+       TOAST NOTIFICATIONS (Floating Glassmorphism)
+       ========================================================================== */
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      animation: toast-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes toast-slide-up {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .toast-box.success {
+      border-left: 4px solid var(--color-success);
+      color: #065f46;
+    }
+
+    .toast-box.error {
+      border-left: 4px solid var(--color-danger);
+      color: #991b1b;
+    }
+
+    .toast-box.info {
+      border-left: 4px solid var(--primary-color);
+      color: #0369a1;
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .app-footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      padding: 5px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      font-weight: 500;
+    }
+
+    .footer-credit span {
+      font-weight: 800;
+      color: var(--primary-color);
+      letter-spacing: 0.04em;
+    }
+
+    /* ==========================================================================
+       PRINT STYLES FOR THERMAL TICKET (50mm x 30mm)
+       ========================================================================== */
+    #ticketPrintArea {
+      display: none;
+    }
+
+    @page {
+      size: 50mm 30mm;
+      margin: 0;
+    }
+
+    @media print {
+      html, body {
+        width: 50mm !important;
+        height: 30mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background: #ffffff !important;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #ticketPrintArea, #ticketPrintArea * {
+        visibility: visible;
+      }
+      #ticketPrintArea {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 50mm !important;
+        height: 30mm !important;
+        max-width: 50mm !important;
+        max-height: 30mm !important;
+        margin: 0 !important;
+        padding: 1.8mm 2.5mm !important;
+        box-sizing: border-box !important;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 7pt;
+        line-height: 1.15;
+        color: #000000 !important;
+        background: #ffffff !important;
+        overflow: hidden !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .p-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .p-brand {
+        font-size: 8pt;
+        font-weight: 900;
+        letter-spacing: 0.4px;
+      }
+      .p-sub {
+        font-size: 6pt;
+        font-weight: 900;
+      }
+      .p-line {
+        border-bottom: 1px dashed #000000;
+        margin: 1px 0;
+      }
+      .p-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0.5px 0;
+        font-size: 6.8pt;
+        font-weight: 900;
+      }
+      .p-code {
+        font-size: 8.5pt;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+      }
+      .p-dec {
+        font-size: 8.5pt;
+        font-weight: 900;
+        letter-spacing: 0.3px;
+      }
+      #printBarcodeSvg {
+        display: block !important;
+        width: 150px !important;
+        height: 52px !important;
+        max-width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+          <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+          <line x1="6" y1="6" x2="6.01" y2="6"></line>
+          <line x1="6" y1="18" x2="6.01" y2="18"></line>
+        </svg>
+      </div>
+      <div class="header-title-box">
+        <div class="header-title-row">
+          <span class="header-title">CLIP MANAGER</span>
+          <span class="header-badge">LEONI BOUZNIKA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Navigation Mode Segmentée (Atelier vs Mode Direct) -->
+      <nav class="options-nav" role="tablist">
+        <button id="tabBtn1" class="option-tab active" onclick="switchToAtelierMode()" title="Mode Atelier (Planche & Clip)">
+          <span class="tab-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </span>
+          <span class="tab-label">Mode Atelier</span>
+        </button>
+        <button id="tabBtn2" class="option-tab mode-hidden" onclick="switchOption(2)"></button>
+        <button id="tabBtn3" class="option-tab" onclick="switchOption(3)" title="Mode direct haute cadence avec impression ticket">
+          <span class="tab-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+          </span>
+          <span class="tab-label">Mode Ticket Direct</span>
+        </button>
+      </nav>
+
+      <!-- Active Port Status Pill -->
+      <div id="headerPortStatus" class="port-pill">
+        <div class="port-dot"></div>
+        <span id="headerPortText">PORT HORS LIGNE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN WORKSPACE ================= -->
+  <main class="app-content">
+
+    <!-- ================= POSTE DE TRAVAIL (Step 1 + Step 2 + Ancien ID + Mode Choice) ================= -->
+    <section class="card" id="xmlSelectionSection">
+      <div class="card-header">
+        <h2 class="card-title">Configuration &amp; Sélection</h2>
+      </div>
+
+      <!-- Step 1 & Step 2 Selectors -->
+      <div class="workflow-steps-grid">
+        <!-- Step 1: Select Board -->
+        <div class="step-box">
+          <div class="step-header">
+            <div class="step-badge">1</div>
+            <span class="step-title">Choisir la Planche (Board)</span>
+          </div>
+          <div class="custom-select-wrap">
+            <select id="boardSelect" class="form-select" onchange="selectBoardFromDropdown()">
+              <option value="">-- Choisir Planche --</option>
+            </select>
+            <div class="select-chevron">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Select Clip -->
+        <div class="step-box">
+          <div class="step-header">
+            <div class="step-badge">2</div>
+            <span class="step-title">Choisir le Clip</span>
+          </div>
+          <div class="custom-select-wrap">
+            <select id="clipSelect" class="form-select" onchange="selectClipFromDropdown()">
+              <option value="">-- Choisir Clip --</option>
+            </select>
+            <div class="select-chevron">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ancien ID Display (Permanently visible once Board + Clip chosen) -->
+      <div class="ancien-id-section" id="ancienIdSection">
+        <div class="ancien-id-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          IDENTIFIANT ACTUEL
+        </div>
+        <div class="ancien-id-row">
+          <span class="ancien-id-value" id="ancienIdValue">—</span>
+          <button class="btn-copy-id" id="btnCopyAncienId" onclick="copyAncienId()" title="Copier l'identifiant actuel">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copier ID
+          </button>
+        </div>
+        <div class="ancien-id-meta" id="ancienIdMeta"></div>
+      </div>
+
+      <!-- Mode auto-selected: Saisie Manuelle only (no mode choice row shown) -->
+      <div class="mode-choice-row" id="modeChoiceRow" style="display:none;"></div>
+    </section>
+
+    <!-- ================= VIEW OPTION 1: RÉCEPTEUR STANDARD ================= -->
+    <div id="optionView1" class="option-view">
+
+      <!-- Communication & Protocole Matériel (Boîte Unique) -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Communication Récepteur &amp; Protocole (3 Signaux)</h2>
+        </div>
+
+        <!-- Port Action Row: Port COM + Ouvrir Port & Acquérir Signal + Fermer Port sur la MÊME ligne -->
+        <div class="port-action-row">
+          <div class="port-select-box">
+            <label class="field-label" for="comSelectOpt1">Port COM :</label>
+            <select id="comSelectOpt1" class="port-select" onchange="changeComPort(this.value)">
+              <option value="COM1">COM1</option>
+              <option value="COM2">COM2</option>
+              <option value="COM3">COM3</option>
+              <option value="COM4">COM4</option>
+              <option value="COM5">COM5</option>
+              <option value="COM6">COM6</option>
+              <option value="COM7">COM7</option>
+              <option value="COM8">COM8</option>
+            </select>
+            <button class="btn btn-light" type="button" onclick="refreshComPortsList()" title="Actualiser la liste des ports">
+              🔄
+            </button>
+          </div>
+
+          <div class="btn-group">
+            <button id="btnAcquireOpt1" class="btn btn-signal-acquire" onclick="connectOpt1Port()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
+                <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
+                <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
+              </svg>
+              Ouvrir Port &amp; Écouter Émetteurs
+            </button>
+            <button class="btn btn-light" onclick="resetOpt1Transmitters()" title="Réinitialiser les émetteurs détectés">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              Réinitialiser
+            </button>
+          </div>
+        </div>
+
+        <!-- New Value Input & Match Pills (Injected dynamically) -->
+        <div id="idInputsOpt1"></div>
+      </section>
+
+    </div>
+
+    <!-- ================= VIEW OPTION 2: SAISIE MANUELLE OGC ================= -->
+    <div id="optionView2" class="option-view">
+
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Saisir le Code</h2>
+        </div>
+
+        <!-- HEX Input & Clean Result Box (Injected dynamically) -->
+        <div id="idInputsOpt2"></div>
+      </section>
+
+    </div>
+
+    <!-- ================= VIEW OPTION 3: RÉCEPTEUR DIRECT & TICKET ================= -->
+    <div id="optionView3" class="option-view">
+      <!-- Port Selector Card for Option 3 -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Connexion Récepteur Direct</h2>
+        </div>
+
+        <div class="port-action-row">
+          <div class="port-select-box">
+            <label class="field-label" for="comSelectOpt3">Port COM (ex: COM3, COM5) :</label>
+            <select id="comSelectOpt3" class="port-select" onchange="changeComPort(this.value)">
+              <option value="COM1">COM1</option>
+              <option value="COM2">COM2</option>
+              <option value="COM3" selected>COM3</option>
+              <option value="COM4">COM4</option>
+              <option value="COM5">COM5</option>
+              <option value="COM6">COM6</option>
+              <option value="COM7">COM7</option>
+              <option value="COM8">COM8</option>
+              <option value="COM9">COM9</option>
+              <option value="COM10">COM10</option>
+            </select>
+            <button class="btn btn-light" type="button" onclick="refreshComPortsList()" title="Scanner les ports COM disponibles">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Scanner Ports
+            </button>
+          </div>
+
+          <div class="btn-group">
+            <button id="btnAcquireOpt3" class="btn btn-signal-acquire" onclick="connectOpt3Port()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
+                <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
+                <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
+              </svg>
+              Connecter &amp; Écouter Émetteurs
+            </button>
+            <button class="btn btn-light" onclick="disconnectOpt3Port()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+              Déconnecter
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Signal Acquisition and Ticket Card Grid -->
+      <div class="opt3-direct-grid">
+        <!-- Left: Signal Acquisition Control -->
+        <section class="card" style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="card-header" style="margin-bottom: 0;">
+            <h2 class="card-title">Récupérer Signal</h2>
+          </div>
+
+          <!-- 3-Match Protocol Bar -->
+          <div class="match-tracker-bar">
+            <div class="match-pills">
+              <div class="match-pill" id="opt3-pill-1"><span class="match-icon" id="opt3-icon-1">○</span><span>CLIC 1</span></div>
+              <div class="match-pill" id="opt3-pill-2"><span class="match-icon" id="opt3-icon-2">○</span><span>CLIC 2</span></div>
+              <div class="match-pill" id="opt3-pill-3"><span class="match-icon" id="opt3-icon-3">○</span><span>CLIC 3</span></div>
+            </div>
+            <div class="match-status-text" id="opt3-signalStatus">Prêt pour acquisition</div>
+          </div>
+
+          <!-- Live Transmitter Detection Panel -->
+          <div class="tx-panel-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
+              <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
+              <circle cx="12" cy="12" r="2"></circle>
+              <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
+              <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
+            </svg>
+            ÉMETTEUR CONFIRMÉ
+            <span class="tx-panel-hint">Auto-confirmé à 3 clics</span>
+          </div>
+          <div id="transmitterPanel" class="tx-panel">
+            <div class="tx-empty">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.8">
+                <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
+                <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
+                <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
+              </svg>
+              <span>En attente des signaux émetteurs...</span>
+            </div>
+          </div>
+
+
+          <!-- Live Signal Telemetry -->
+          <div class="opt3-signal-display">
+            <div class="signal-data-row">
+              <span class="signal-data-title">CODE HEXADÉCIMAL :</span>
+              <span class="signal-data-value hex" id="opt3LiveHex">—</span>
+            </div>
+            <div class="signal-data-row">
+              <span class="signal-data-title">IDENTIFIANT DÉCIMAL :</span>
+              <span class="signal-data-value dec" id="opt3LiveDec">—</span>
+            </div>
+            <div class="signal-data-row">
+              <span class="signal-data-title">PORT UTILISÉ :</span>
+              <span class="signal-data-value" id="opt3LivePort">COM3</span>
+            </div>
+          </div>
+
+          <!-- Quick Reset Button -->
+          <button class="btn btn-light" onclick="resetOption3NextClip()" style="justify-content: center; padding: 6px 14px; font-size: 11.5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            Réinitialiser pour Nouveau Scan
+          </button>
+        </section>
+
+        <!-- Right: Ticket Visual & Print Action -->
+        <section class="card" style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="card-header" style="margin-bottom: 0;">
+            <h2 class="card-title">Aperçu &amp; Impression Ticket</h2>
+          </div>
+
+          <!-- Ticket Box -->
+          <div class="ticket-card-box" id="ticketCardBox">
+            <div class="ticket-header-block">
+              <div class="ticket-brand">LEONI BOUZNIKA</div>
+              <div class="ticket-title">BON DE CONTRÔLE RÉCEPTEUR</div>
+            </div>
+
+            <div class="ticket-rows-list">
+              <div class="t-row" style="margin: 2px 0;">
+                <span class="t-k">CODE HEX :</span>
+                <span class="t-v code-box" id="ticketOpt3Hex">FEE7DF</span>
+              </div>
+              <div class="t-row">
+                <span class="t-k">ID DÉCIMAL :</span>
+                <span class="t-v" id="ticketOpt3Dec" style="color: #059669;">—</span>
+              </div>
+            </div>
+            <!-- Barcode SVG -->
+            <div style="margin-top: 4px; text-align: center;">
+              <svg id="ticketBarcodeSvg" style="max-width: 100%;"></svg>
+            </div>
+            <!-- Hidden elements preserved for JS compatibility -->
+            <span id="ticketOpt3Port" style="display:none;">COM3</span>
+            <span id="ticketOpt3Date" style="display:none;"></span>
+            <span id="ticketOpt3Status" style="display:none;"></span>
+            <span id="ticketOpt3BarcodeLabel" style="display:none;"></span>
+          </div>
+
+          <!-- Print Button -->
+          <button id="btnPrintTicketOpt3" class="btn btn-print-ticket" onclick="printTicket()" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Imprimer Ticket (50mm × 30mm)
+          </button>
+        </section>
+      </div>
+    </div>
+
+    <!-- Floating Toast Notification -->
+    <div class="toast-box" id="status">
+      <span id="statusIcon"></span>
+      <span id="statusMessage"></span>
+    </div>
+
+  </main>
+
+  <!-- ================= PRINTABLE TICKET DOM (50mm x 30mm) ================= -->
+  <div id="ticketPrintArea">
+    <div class="p-header">
+      <span class="p-brand">LEONI BOUZNIKA</span>
+      <span class="p-sub">CONTROLE RECEPTEUR</span>
+    </div>
+    <div class="p-line"></div>
+    <div class="p-row">
+      <span>CODE HEX :</span>
+      <strong id="printHex" class="p-code">FEE7DF</strong>
+    </div>
+    <div class="p-row">
+      <span>ID DECIMAL :</span>
+      <strong id="printDec" class="p-dec">254231223015</strong>
+    </div>
+    <div style="margin-top: 4px; text-align: center;">
+      <svg id="printBarcodeSvg" style="max-width: 100%;"></svg>
+    </div>
+    <!-- Hidden elements preserved for JS compatibility -->
+    <span id="printPort" style="display:none;">COM3</span>
+    <span id="printDate" style="display:none;"></span>
+    <span id="printBarcodeLabel" style="display:none;"></span>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="app-footer">
+    <div>LEONI Wiring Systems • Industrial Operations Bouznika</div>
+    <div class="footer-credit">Created by <span>REDA BENTAGHY</span></div>
+  </footer>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
