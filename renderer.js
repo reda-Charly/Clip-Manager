@@ -71,6 +71,14 @@ const ICON_INFO = `
 // Helper: Update Port Connection Badge in Header & UI
 function updatePortUI(isOpen, portName) {
   isPortOpen = isOpen;
+  if (isOpen) {
+    opt3PortConnected = true;
+    opt1PortConnected = true;
+  } else {
+    opt3PortConnected = false;
+    opt1PortConnected = false;
+  }
+
   if (portName) {
     configuredComPort = portName;
     syncComPortDropdowns(portName);
@@ -104,15 +112,21 @@ function updateAcquireButtonsState(isListening) {
   const btn1 = document.getElementById('btnAcquireOpt1');
   const btn3 = document.getElementById('btnAcquireOpt3');
 
-  const setBtn = (btn, isOption3) => {
+  const setBtn = (btn) => {
     if (!btn) return;
+    btn.disabled = false;
     if (isListening) {
+      btn.classList.add('connected');
       btn.classList.add('listening');
       btn.innerHTML = `
-        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; margin-right:6px;"></span>
-        Port Connecté - En Écoute Continue...
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+        </svg>
+        Déconnecter
       `;
     } else {
+      btn.classList.remove('connected');
       btn.classList.remove('listening');
       btn.innerHTML = `
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -122,13 +136,13 @@ function updateAcquireButtonsState(isListening) {
           <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
           <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
         </svg>
-        ${isOption3 ? 'Connecter &amp; Acquérir Signal' : 'Ouvrir Port &amp; Acquérir Signal'}
+        Connecter
       `;
     }
   };
 
-  setBtn(btn1, false);
-  setBtn(btn3, true);
+  setBtn(btn1);
+  setBtn(btn3);
 }
 
 // Synchronize all COM port select elements with current port
@@ -246,6 +260,9 @@ function switchOption(optionNumber) {
   // Refresh inputs for the active option
   updateIdInputs();
 
+  // Sync connection buttons state
+  updateAcquireButtonsState(isPortOpen || opt3PortConnected || opt1PortConnected);
+
   if (optionNumber === 2) {
     setTimeout(() => {
       const input = document.getElementById('hex-input-opt2');
@@ -280,6 +297,55 @@ function switchToAtelierMode() {
   }
 
   updateIdInputs();
+}
+
+// Reset Mode Atelier (Board, Clip, Manual Hex input, Converted ID, and signals)
+function resetAtelierMode() {
+  selectedBoard = null;
+  selectedClip = null;
+  selectedBoardData = null;
+  selectedClipData = null;
+  lastAutoCopiedSelectionKey = null;
+
+  const boardSelect = document.getElementById('boardSelect');
+  const clipSelect = document.getElementById('clipSelect');
+  if (boardSelect) {
+    boardSelect.value = '';
+    try { boardSelect.focus(); } catch (_) {}
+  }
+  if (clipSelect) {
+    clipSelect.value = '';
+  }
+
+  currentManualHexInput = '';
+  currentManualConvertedId = null;
+
+  // Reset Option 1 transmitters if any
+  transmitterClickCounts = {};
+  transmitterLastCountedAt = {};
+  lastActiveTransmitter = null;
+  opt1Confirmed = false;
+  newValueConfirmed = false;
+  pendingSignalValue = null;
+  pendingHexCode = null;
+  matchingSignalCount = 0;
+
+  // Clear manual input if it's currently rendered in DOM
+  const hexInput = document.getElementById('hex-input-opt2');
+  if (hexInput) hexInput.value = '';
+  const convResultId = document.getElementById('convResultId');
+  if (convResultId) convResultId.textContent = '—';
+  const convBadge = document.getElementById('convBadge');
+  if (convBadge) {
+    convBadge.textContent = 'En attente de saisie Hex';
+    convBadge.className = 'conv-badge';
+  }
+
+  // Update UI and reset views
+  resetModeSelection();
+  updateIdInputs();
+
+  showStatus('Mode Atelier réinitialisé.', 'info');
 }
 
 // Hide ONLY mode buttons after mode is chosen — ancien ID stays visible always
@@ -442,6 +508,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Continuous real-time listener for incoming receiver signals
   ipcRenderer.on('receiver-signal-stream', (event, signal) => {
     handleIncomingSignal(signal);
+  });
+
+  // Real-time listener for port disconnection from OS
+  ipcRenderer.on('port-status-changed', (event, status) => {
+    updatePortUI(status && status.isOpen, configuredComPort);
   });
 
   await refreshComPortsList();
@@ -615,7 +686,6 @@ function updateIdInputs() {
             </svg>
             ÉMETTEUR CONFIRMÉ
             <span class="tx-panel-hint">Auto-confirmé à 3 clics</span>
-            <button type="button" class="btn btn-sm btn-light" onclick="resetOpt1Transmitters()" style="margin-left: 8px; padding: 2px 8px; font-size: 10px; font-weight: 700; border-radius: 12px; cursor: pointer;">Réinitialiser</button>
           </div>
           <div id="transmitterPanelOpt1" class="tx-panel">
             <div class="tx-empty">
@@ -876,7 +946,7 @@ async function closeReceiverPort() {
 // Replaces old receiveSignalFromReceiver for Option 3.
 // Simply opens the port — signals auto-stream in via receiver-signal-stream IPC.
 async function connectOpt3Port() {
-  if (opt3PortConnected) {
+  if (opt3PortConnected || isPortOpen) {
     // Already connected: disconnect
     await disconnectOpt3Port();
     return;
@@ -896,57 +966,41 @@ async function connectOpt3Port() {
     if (result.success) {
       opt3PortConnected = true;
       updatePortUI(true, configuredComPort);
-      showStatus(`Port ${configuredComPort} ouvert — Écoute des émetteurs active.`, 'success');
-      // Update button to "connected" state
-      if (btn) {
-        btn.disabled = false;
-        btn.classList.add('listening');
-        btn.innerHTML = `
-          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;animation:pulse-dot 1.8s infinite;margin-right:6px;"></span>
-          Déconnecter (En Écoute...)
-        `;
-      }
+      showStatus(`Port ${configuredComPort} connecté — Écoute des émetteurs active.`, 'success');
       // Show transmitter panel
       renderTransmitterPanel();
     } else {
       opt3PortConnected = false;
       updatePortUI(false, configuredComPort);
       showStatus(`Échec connexion : ${result.message}`, 'error');
-      resetConnectBtn();
     }
   } catch (err) {
     opt3PortConnected = false;
     updatePortUI(false, configuredComPort);
     showStatus(`Erreur : ${err.message}`, 'error');
-    resetConnectBtn();
   }
 }
 
 async function disconnectOpt3Port() {
+  const btn = document.getElementById('btnAcquireOpt3');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;margin-right:6px;"></span>
+      Déconnexion...
+    `;
+  }
   try {
     await ipcRenderer.invoke('close-receiver-port');
   } catch (_) {}
   opt3PortConnected = false;
+  opt1PortConnected = false;
   updatePortUI(false, configuredComPort);
   showStatus('Port déconnecté.', 'info');
-  resetConnectBtn();
 }
 
 function resetConnectBtn() {
-  const btn = document.getElementById('btnAcquireOpt3');
-  if (!btn) return;
-  btn.disabled = false;
-  btn.classList.remove('listening');
-  btn.innerHTML = `
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
-      <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
-      <circle cx="12" cy="12" r="2"></circle>
-      <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
-      <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
-    </svg>
-    Connecter &amp; Écouter Émetteurs
-  `;
+  updateAcquireButtonsState(false);
 }
 
 // ── INCOMING SIGNAL HANDLER (called for every streamed signal) ─────────────────
@@ -1108,26 +1162,13 @@ function renderTransmitterPanel(panelId) {
 // Option 1 Connect / Listen to Transmitters (streaming mode)
 async function connectOpt1Port() {
   // Option 1: toggle port open/close
-  if (opt1PortConnected) {
+  if (opt1PortConnected || isPortOpen) {
     // Already connected: close port
     try { await ipcRenderer.invoke('close-receiver-port'); } catch (_) {}
     opt1PortConnected = false;
+    opt3PortConnected = false;
     updatePortUI(false, configuredComPort);
     showStatus('Port fermé.', 'info');
-    const btn = document.getElementById('btnAcquireOpt1');
-    if (btn) {
-      btn.classList.remove('listening');
-      btn.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
-          <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
-          <circle cx="12" cy="12" r="2"></circle>
-          <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
-          <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
-        </svg>
-        Ouvrir Port &amp; Écouter Émetteurs
-      `;
-    }
     return;
   }
 
@@ -1149,24 +1190,15 @@ async function connectOpt1Port() {
     if (!openResult.success) {
       updatePortUI(false, configuredComPort);
       showStatus(`Échec récepteur sur ${configuredComPort} : ${openResult.message}`, 'error');
-      if (btn) { btn.disabled = false; btn.innerHTML = 'Ouvrir Port &amp; Écouter Émetteurs'; }
       return;
     }
     opt1PortConnected = true;
     updatePortUI(true, configuredComPort);
     showStatus(`Récepteur actif sur ${configuredComPort}. Scannez vos émetteurs...`, 'success');
-    if (btn) {
-      btn.disabled = false;
-      btn.classList.add('listening');
-      btn.innerHTML = `
-        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;animation:pulse-dot 1.8s infinite;margin-right:6px;"></span>
-        Fermer Port (En Écoute...)
-      `;
-    }
     renderTransmitterPanel('transmitterPanelOpt1');
   } catch (error) {
+    updatePortUI(false, configuredComPort);
     showStatus(`Erreur récepteur : ${error.message}`, 'error');
-    if (btn) { btn.disabled = false; }
   } finally {
     isReceivingSignal = false;
   }
@@ -1249,6 +1281,27 @@ function updateSignalConfirmStatus() {
 
 
 
+// Helper to reliably access JsBarcode whether loaded via script tag or Node require
+function getJsBarcode() {
+  if (typeof window !== 'undefined' && typeof window.JsBarcode === 'function') {
+    return window.JsBarcode;
+  }
+  if (typeof JsBarcode === 'function') {
+    return JsBarcode;
+  }
+  if (typeof require === 'function') {
+    try {
+      require('./JsBarcode.all.min.js');
+      if (typeof window !== 'undefined' && typeof window.JsBarcode === 'function') {
+        return window.JsBarcode;
+      }
+    } catch (e) {
+      console.warn('JsBarcode require fallback failed:', e);
+    }
+  }
+  return null;
+}
+
 // Update Option 3 Visual Ticket & Print Area
 function updateTicketDisplayOption3(hexCode, decId, isConfirmed = false) {
   const displayHex = hexCode || lastConfirmedHexCode || 'FEE7DF';
@@ -1268,59 +1321,65 @@ function updateTicketDisplayOption3(hexCode, decId, isConfirmed = false) {
   }
 
   // Render barcodes using JsBarcode (Code128)
-  // On-screen: 45mm wide x 25mm tall | Print: smaller, fits 30mm ticket
-  const barcodeValue = displayHex;
-  const barcodeOptions = {
-    format: 'CODE128',
-    width: 2,
-    height: 70,
-    displayValue: true,
-    text: barcodeValue,
-    fontSize: 11,
-    fontOptions: 'bold',
-    textMargin: 3,
-    margin: 4,
-    background: 'transparent',
-    lineColor: '#1e1b4b'
-  };
+  const cleanHex = String(displayHex || 'FEE7DF').trim().toUpperCase();
+  const barcodeValue = cleanHex;
+  const jsBarcodeFn = getJsBarcode();
 
-  try {
-    const ticketSvg = document.getElementById('ticketBarcodeSvg');
-    if (ticketSvg && typeof JsBarcode !== 'undefined') {
-      ticketSvg.style.width = '140px';
-      ticketSvg.style.height = '48px';
-      JsBarcode(ticketSvg, barcodeValue, {
-        ...barcodeOptions,
-        height: 28,
-        fontSize: 9,
-        margin: 2
-      });
-      ticketSvg.setAttribute('width', '140');
-      ticketSvg.setAttribute('height', '48');
+  if (jsBarcodeFn) {
+    try {
+      const ticketSvg = document.getElementById('ticketBarcodeSvg');
+      if (ticketSvg) {
+        ticketSvg.innerHTML = '';
+        jsBarcodeFn(ticketSvg, barcodeValue, {
+          format: 'CODE128',
+          width: 2,
+          height: 28,
+          displayValue: true,
+          text: barcodeValue,
+          fontSize: 9,
+          fontOptions: 'bold',
+          textMargin: 3,
+          margin: 2,
+          background: 'transparent',
+          lineColor: '#1e1b4b'
+        });
+        ticketSvg.setAttribute('width', '140');
+        ticketSvg.setAttribute('height', '48');
+        ticketSvg.style.width = '140px';
+        ticketSvg.style.height = '48px';
+      }
+    } catch (e) {
+      console.error('Error rendering ticket barcode:', e);
     }
-  } catch (e) { /* JsBarcode not loaded yet (offline) */ }
 
-  try {
-    const printSvg = document.getElementById('printBarcodeSvg');
-    if (printSvg && typeof JsBarcode !== 'undefined') {
-      // Print barcode: compact — ~45mm wide (170px) x ~10mm tall bars (38px)
-      printSvg.style.width = '150px';
-      printSvg.style.height = '52px';
-      JsBarcode(printSvg, barcodeValue, {
-        ...barcodeOptions,
-        width: 1.4,
-        height: 32,
-        fontSize: 8,
-        fontOptions: 'bold',
-        textMargin: 2,
-        margin: 2,
-        lineColor: '#000000',
-        background: '#ffffff'
-      });
-      printSvg.setAttribute('width', '150');
-      printSvg.setAttribute('height', '52');
+    try {
+      const printSvg = document.getElementById('printBarcodeSvg');
+      if (printSvg) {
+        printSvg.innerHTML = '';
+        jsBarcodeFn(printSvg, barcodeValue, {
+          format: 'CODE128',
+          width: 1.4,
+          height: 32,
+          displayValue: true,
+          text: barcodeValue,
+          fontSize: 8,
+          fontOptions: 'bold',
+          textMargin: 2,
+          margin: 2,
+          lineColor: '#000000',
+          background: '#ffffff'
+        });
+        printSvg.setAttribute('width', '150');
+        printSvg.setAttribute('height', '52');
+        printSvg.style.width = '150px';
+        printSvg.style.height = '52px';
+      }
+    } catch (e) {
+      console.error('Error rendering print barcode:', e);
     }
-  } catch (e) { /* JsBarcode not loaded yet (offline) */ }
+  } else {
+    console.error('JsBarcode library is not available.');
+  }
 
   // Print Area DOM (hex & dec only)
   const pHex = document.getElementById('printHex');
@@ -1338,6 +1397,8 @@ async function printTicket() {
     const printResult = await ipcRenderer.invoke('print-ticket');
     if (printResult && printResult.success) {
       showStatus('Ticket imprimé avec succès !', 'success');
+    } else if (printResult && printResult.message && (String(printResult.message).toLowerCase().includes('cancel') || String(printResult.message).toLowerCase().includes('annul'))) {
+      showStatus('Impression annulée.', 'info');
     } else {
       window.print();
     }

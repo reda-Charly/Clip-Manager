@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script src="JsBarcode.all.min.js"></script>
 
   <style>
     /* ==========================================================================
@@ -959,15 +959,24 @@
       transform: translateY(-1px);
     }
 
-    .btn-signal-acquire.listening {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      animation: pulse-amber 1.5s infinite alternate;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
+    .btn-signal-acquire.listening,
+    .btn-signal-acquire.connected {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+      animation: pulse-red 2s infinite alternate;
     }
 
-    @keyframes pulse-amber {
-      from { box-shadow: 0 0 4px rgba(245, 158, 11, 0.4); }
-      to { box-shadow: 0 0 16px rgba(245, 158, 11, 0.8); }
+    .btn-signal-acquire.listening:hover,
+    .btn-signal-acquire.connected:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      box-shadow: 0 6px 18px rgba(220, 38, 38, 0.5);
+      transform: translateY(-1px);
+    }
+
+    @keyframes pulse-red {
+      from { box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+      to { box-shadow: 0 0 14px rgba(239, 68, 68, 0.7); }
     }
 
     .btn-save-main {
@@ -1778,7 +1787,14 @@
     <!-- ================= POSTE DE TRAVAIL (Step 1 + Step 2 + Ancien ID + Mode Choice) ================= -->
     <section class="card" id="xmlSelectionSection">
       <div class="card-header">
-        <h2 class="card-title">Configuration &amp; Sélection</h2>
+        <h2 class="card-title">Entrer Ancien Émetteur</h2>
+        <button id="btnResetAtelier" class="btn btn-light" type="button" onclick="resetAtelierMode()" title="Réinitialiser la sélection et le mode atelier" style="padding: 5px 12px; font-size: 11.5px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          Réinitialiser
+        </button>
       </div>
 
       <!-- Step 1 & Step 2 Selectors -->
@@ -1884,7 +1900,7 @@
                 <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
                 <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
               </svg>
-              Ouvrir Port &amp; Écouter Émetteurs
+              Connecter
             </button>
             <button class="btn btn-light" onclick="resetOpt1Transmitters()" title="Réinitialiser les émetteurs détectés">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1907,7 +1923,7 @@
 
       <section class="card">
         <div class="card-header">
-          <h2 class="card-title">Saisir le Code</h2>
+          <h2 class="card-title">Entrer Nouveau Émetteur</h2>
         </div>
 
         <!-- HEX Input & Clean Result Box (Injected dynamically) -->
@@ -1957,14 +1973,7 @@
                 <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
                 <path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"></path>
               </svg>
-              Connecter &amp; Écouter Émetteurs
-            </button>
-            <button class="btn btn-light" onclick="disconnectOpt3Port()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-              </svg>
-              Déconnecter
+              Connecter
             </button>
           </div>
         </div>
@@ -1977,16 +1986,7 @@
           <div class="card-header" style="margin-bottom: 0;">
             <h2 class="card-title">Récupérer Signal</h2>
           </div>
-
-          <!-- 3-Match Protocol Bar -->
-          <div class="match-tracker-bar">
-            <div class="match-pills">
-              <div class="match-pill" id="opt3-pill-1"><span class="match-icon" id="opt3-icon-1">○</span><span>CLIC 1</span></div>
-              <div class="match-pill" id="opt3-pill-2"><span class="match-icon" id="opt3-icon-2">○</span><span>CLIC 2</span></div>
-              <div class="match-pill" id="opt3-pill-3"><span class="match-icon" id="opt3-icon-3">○</span><span>CLIC 3</span></div>
-            </div>
-            <div class="match-status-text" id="opt3-signalStatus">Prêt pour acquisition</div>
-          </div>
+          <span id="opt3-signalStatus" style="display:none;"></span>
 
           <!-- Live Transmitter Detection Panel -->
           <div class="tx-panel-header">

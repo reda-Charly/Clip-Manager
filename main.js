@@ -258,6 +258,13 @@ ipcMain.handle('open-receiver-port', async (event) => {
       });
     });
 
+    port.on('close', () => {
+      receiverPort = null;
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('port-status-changed', { isOpen: false });
+      }
+    });
+
     attachReceiverDataListener(receiverPort);
 
     return { success: true, message: `Receiver port opened: ${configComPort}` };
